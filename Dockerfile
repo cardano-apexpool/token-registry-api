@@ -10,8 +10,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # system dependencies
 RUN apt update -y
 RUN apt install -y \
-    tmux \
-    screen \
     git \
     jq \
     bc \
@@ -28,7 +26,8 @@ RUN apt install -y \
     vim \
     joe \
     cron \
-    python3-pip
+    python3-pip \
+    sqlite3
 
 # create folders
 RUN ls -l $(dirname ${APP_PATH}) || mkdir $(dirname ${APP_PATH}) -p
@@ -36,7 +35,7 @@ RUN git clone --recurse-submodules https://github.com/cardano-apexpool/token-reg
 RUN mkdir ${APP_PATH}/db
 RUN mkdir ${APP_PATH}/logs
 
-RUN chmod 755 ${APP_PATH}/run.sh
+RUN chmod 755 ${APP_PATH}/run.sh ${APP_PATH}/update.sh
 RUN pip3 install -r ${APP_PATH}/requirements.txt
 
 WORKDIR ${APP_PATH}

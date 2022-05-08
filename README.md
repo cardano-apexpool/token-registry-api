@@ -14,7 +14,7 @@ When updating it, the update should be done with the following command:
 ## Endpoints
 There are 3 API endpoints:
 1. /api/v0/ticker/{ticker}
-The ticker is case-sensitive. A GET request to: `/api/v0/cNETA` will return the following result:
+The ticker is case-sensitive. A GET request to: `/api/v0/ticker/cNETA` will return the following result:
 
 ```
 [

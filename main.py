@@ -76,6 +76,37 @@ class Ticker(Resource):
         return tokens
 
 
+@ns.route('/ticker/<string:ticker>/all')
+@api.response(HTTPStatus.OK.value, "OK")
+@api.response(HTTPStatus.NOT_ACCEPTABLE.value, "Not Acceptable client error")
+@api.response(HTTPStatus.SERVICE_UNAVAILABLE.value, "Server error")
+class Ticker(Resource):
+    def get(self, ticker):
+        conn = sqlite3.connect(DB_NAME)
+        cur = conn.cursor()
+        cur.execute("SELECT policy_id, name_hex, name, url, logo, description, decimals FROM tokens WHERE ticker = ?",
+                    (ticker,))
+        tokens_info = cur.fetchall()
+        tokens = []
+        for item in tokens_info:
+            token = {}
+            token['policy_id'] = item[0]
+            token['name_hex'] = item[1]
+            token['name'] = item[2]
+            token['url'] = item[3]
+            token['logo'] = item[4]
+            token['ticker'] = ticker
+            token['description'] = item[5]
+            token['decimals'] = item[6]
+            tokens.append(token)
+        conn.close()
+        if len(tokens) == 0:
+            msg = {}
+            msg['error'] = 'Ticker %s not found' % ticker
+            return [msg], 406
+        return tokens
+
+
 @ns.route('/tokens')
 @api.response(HTTPStatus.OK.value, "OK")
 @api.response(HTTPStatus.NOT_ACCEPTABLE.value, "Not Acceptable client error")
@@ -163,6 +194,8 @@ if __name__ == '__main__':
                 name CHAR(32),
                 ticker CHAR(32),
                 decimals INTEGER,
+                url TEXT,
+                logo TEXT,
                 description TEXT
                 )''')
     conn.commit()

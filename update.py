@@ -47,6 +47,8 @@ if __name__ == '__main__':
                 name CHAR(32),
                 ticker CHAR(32),
                 decimals INTEGER,
+                url TEXT,
+                logo TEXT,
                 description TEXT
                 )''')
     conn.commit()
@@ -75,21 +77,30 @@ if __name__ == '__main__':
                         token_decimals = int(policy['decimals']['value'])
                     else:
                         token_decimals = 0
+                    if 'url' in policy:
+                        token_url = str(policy['url']['value'])
+                    else:
+                        token_url = ''
+                    if 'logo' in policy:
+                        token_logo = str(policy['logo']['value'])
+                    else:
+                        token_logo = ''
                     token_description = policy['description']['value']
                     print('Ticker: %s, Name: %s, Policy: %s, Hex_name: %s' %
                           (token_ticker, token_name, policy_id, token_name_hex))
                     cur.execute("SELECT count(*) from tokens where policy_id = ? and name_hex = ?",
                                 (policy_id, token_name_hex))
                     if cur.fetchone()[0] == 0:
-                        cur.execute("INSERT INTO tokens (policy_id, name_hex, name, ticker, decimals, description) "
-                                    "VALUES (?, ?, ?, ?, ?, ?)",
+                        cur.execute("INSERT INTO tokens (policy_id, name_hex, name, ticker, "
+                                    "decimals, url, logo, description) "
+                                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                     (policy_id, token_name_hex, token_name, token_ticker,
-                                     token_decimals, token_description))
+                                     token_decimals, token_url, token_logo, token_description))
                     else:
-                        cur.execute("UPDATE tokens  set name = ?, ticker = ?, decimals = ?, description = ? "
+                        cur.execute("UPDATE tokens  set name = ?, ticker = ?, decimals = ?, url=?, logo=?, description = ? "
                                     "WHERE policy_id = ? and name_hex = ?",
                                     (token_name, token_ticker, token_description, policy_id,
-                                     token_decimals,  token_name_hex))
+                                     token_decimals,  token_url, token_logo, token_name_hex))
                 except Exception as e:
                     applog.error('Invalid policy file %s' % pf)
                     applog.exception(e)
